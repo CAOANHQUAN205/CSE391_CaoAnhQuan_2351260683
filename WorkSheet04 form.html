@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkSheet04 — Form Đăng ký Khóa học</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary:      #2563eb;
+      --primary-h:    #1d4ed8;
+      --primary-lt:   #eff6ff;
+      --success:      #16a34a;
+      --success-lt:   #f0fdf4;
+      --danger:       #dc2626;
+      --danger-lt:    #fef2f2;
+      --warning:      #d97706;
+      --gray-50:      #f9fafb;
+      --gray-100:     #f3f4f6;
+      --gray-200:     #e5e7eb;
+      --gray-300:     #d1d5db;
+      --gray-400:     #9ca3af;
+      --gray-500:     #6b7280;
+      --gray-700:     #374151;
+      --gray-900:     #111827;
+      --white:        #ffffff;
+      --font-ui:      'Inter', sans-serif;
+      --font-head:    'Space Grotesk', sans-serif;
+      --radius-sm:    6px;
+      --radius:       10px;
+      --radius-lg:    16px;
+      --shadow-sm:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow:       0 4px 16px rgba(0,0,0,.08);
+      --shadow-lg:    0 10px 40px rgba(0,0,0,.12);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-ui);
+      background: var(--gray-100);
+      color: var(--gray-900);
+      min-height: 100vh;
+    }
+    .page-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
+      color: white;
+      padding: 3rem 1.5rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 48px;
+      background: var(--gray-100);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .page-header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .page-header h1 {
+      font-family: var(--font-head);
+      font-size: clamp(1.6rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+    .page-header p {
+      font-size: 1rem;
+      opacity: 0.85;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .page-body {
+      max-width: 960px;
+      margin: -1rem auto 3rem;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    .steps {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 2rem;
+    }
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .step-num {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+    }
+    .step.active .step-num   { background: var(--primary); color: white; box-shadow: 0 0 0 4px rgba(37,99,235,0.2); }
+    .step.done .step-num     { background: var(--success); color: white; }
+    .step.inactive .step-num { background: var(--gray-200); color: var(--gray-400); }
+    .step-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--gray-400);
+    }
+    .step.active .step-label { color: var(--primary); }
+    .step.done .step-label   { color: var(--success); }
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: var(--gray-200);
+      margin: 0 8px;
+      margin-bottom: 22px;
+      min-width: 40px;
+      max-width: 80px;
+    }
+    .step-line.done { background: var(--success); }
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .card-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      background: var(--primary-lt);
+      flex-shrink: 0;
+    }
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+    .card-sub { font-size: 0.82rem; color: var(--gray-500); margin-top: 2px; }
+    .card-body { padding: 2rem; }
+    .section-title {
+      font-family: var(--font-head);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid var(--primary-lt);
+    }
+    .section-title::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+    .form-section { margin-bottom: 2rem; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group.col3 { grid-column: span 1; }
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    label .req { color: var(--danger); font-size: 0.9em; }
+    .input-wrap { position: relative; }
+    .input-wrap .icon {
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.95rem;
+      pointer-events: none;
+      color: var(--gray-400);
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid var(--gray-300);
+      border-radius: var(--radius);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      color: var(--gray-900);
+      background: var(--white);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .has-icon input,
+    .has-icon select { padding-left: 2.5rem; }
+    input::placeholder, textarea::placeholder { color: var(--gray-400); }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+    input:valid:not(:placeholder-shown):not([type="date"]):not([type="radio"]):not([type="checkbox"]) {
+      border-color: var(--success);
+    }
+    .form-group.error input,
+    .form-group.error select,
+    .form-group.error textarea {
+      border-color: var(--danger);
+      background: var(--danger-lt);
+    }
+    .err-msg {
+      font-size: 0.75rem;
+      color: var(--danger);
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+    .form-group.error .err-msg { display: flex; }
+    .ok-msg {
+      font-size: 0.75rem;
+      color: var(--success);
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+    .form-group.ok .ok-msg { display: flex; }
+    .form-group.ok input  { border-color: var(--success); }
+    textarea { resize: vertical; min-height: 100px; }
+    .radio-group, .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 4px;
+    }
+    .radio-card {
+      flex: 1;
+      min-width: 120px;
+      border: 1.5px solid var(--gray-300);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+    .radio-card:hover { border-color: var(--primary); background: var(--primary-lt); }
+    .radio-card input[type="radio"] {
+      width: 16px; height: 16px;
+      margin: 0; padding: 0;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+    }
+    .radio-card input[type="radio"]:checked + span { color: var(--primary); font-weight: 700; }
+    .cb-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: var(--gray-700);
+      cursor: pointer;
+    }
+    .cb-item input[type="checkbox"] {
+      width: 16px; height: 16px;
+      margin: 0; padding: 0;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+      border-radius: 4px;
+    }
+    .avatar-upload {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .avatar-preview {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 3px solid var(--gray-200);
+      object-fit: cover;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.6rem 1.25rem;
+      border: 1.5px dashed var(--gray-300);
+      border-radius: var(--radius);
+      background: var(--gray-50);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .upload-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-lt); }
+    .upload-btn input { display: none; }
+    .strength-wrap { margin-top: 6px; }
+    .strength-bars {
+      display: flex;
+      gap: 4px;
+      height: 4px;
+    }
+    .strength-bars span {
+      flex: 1;
+      border-radius: 4px;
+      background: var(--gray-200);
+      transition: background 0.3s;
+    }
+    .strength-text {
+      font-size: 0.75rem;
+      color: var(--gray-400);
+      margin-top: 4px;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--gray-200);
+      margin: 1.5rem 0;
+    }
+    .submit-area {
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-200);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .submit-note {
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-group-submit { display: flex; gap: 0.75rem; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--gray-300);
+      color: var(--gray-500);
+    }
+    .btn-outline:hover { border-color: var(--gray-400); color: var(--gray-700); }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 12px rgba(37,99,235,0.3);
+    }
+    .btn-primary:hover {
+      background: var(--primary-h);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37,99,235,0.38);
+    }
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 3.5rem 2rem;
+    }
+    .success-screen.show { display: block; }
+    .success-icon {
+      width: 72px; height: 72px;
+      background: var(--success-lt);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.25rem;
+      animation: popIn 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .success-screen h2 {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--success);
+      margin-bottom: 0.5rem;
+    }
+    .success-screen p { font-size: 0.92rem; color: var(--gray-500); margin-bottom: 1.5rem; }
+    .summary-table {
+      text-align: left;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      margin: 1.5rem auto;
+      max-width: 480px;
+    }
+    .summary-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-key { font-size: 0.78rem; font-weight: 600; color: var(--gray-400); padding: 0.7rem 1rem; text-transform: uppercase; letter-spacing: 0.5px; background: var(--gray-100); }
+    .summary-val { font-size: 0.88rem; color: var(--gray-900); padding: 0.7rem 1rem; font-weight: 500; }
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .card-header, .card-body, .submit-area { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .submit-area { flex-direction: column; align-items: stretch; }
+      .btn-group-submit { flex-direction: column; }
+      .btn { justify-content: center; }
+      .steps .step-label { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div class="badge">WorkSheet 04 — BÀI TẬP B</div>
+    <h1>Đăng ký Khóa học Lập trình</h1>
+    <p>Điền đầy đủ thông tin để hoàn tất đăng ký. Chúng tôi sẽ liên hệ xác nhận trong 24h.</p>
+  </div>
+  <div class="page-body">
+    <div class="steps">
+      <div class="step done">
+        <div class="step-num">✓</div>
+        <div class="step-label">Chọn khóa</div>
+      </div>
+      <div class="step-line done"></div>
+      <div class="step active">
+        <div class="step-num">2</div>
+        <div class="step-label">Thông tin</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step inactive">
+        <div class="step-num">3</div>
+        <div class="step-label">Xác nhận</div>
+      </div>
+    </div>
+    <div class="card" id="formCard">
+      <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div>
+          <div class="card-title">Mẫu đăng ký tham gia</div>
+          <div class="card-sub">Vui lòng điền chính xác để tiện liên hệ xác nhận</div>
+        </div>
+      </div>
+      <form id="mainForm" novalidate>
+        <div class="card-body">
+          <div class="form-section">
+            <div class="section-title">Thông tin cá nhân</div>
+            <div class="form-group full" style="margin-bottom:1.25rem">
+              <label>Ảnh đại diện</label>
+              <div class="avatar-upload">
+                <div class="avatar-preview" id="avatarPreview">🧑</div>
+                <div>
+                  <label class="upload-btn" for="avatarInput">
+                    📁 Chọn ảnh
+                    <input type="file" id="avatarInput" accept="image/*" />
+                  </label>
+                  <div style="font-size:0.75rem; color:var(--gray-400); margin-top:5px">JPG, PNG, GIF — tối đa 2MB</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group" id="g-ho">
+                <label for="ho">Họ <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">👤</span>
+                  <input type="text" id="ho" placeholder="Nguyễn" required />
+                </div>
+                <span class="err-msg">⚠ Vui lòng nhập họ.</span>
+                <span class="ok-msg">✓ Hợp lệ</span>
+              </div>
+              <div class="form-group" id="g-ten">
+                <label for="ten">Tên <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">👤</span>
+                  <input type="text" id="ten" placeholder="Văn An" required />
+                </div>
+                <span class="err-msg">⚠ Vui lòng nhập tên.</span>
+                <span class="ok-msg">✓ Hợp lệ</span>
+              </div>
+              <div class="form-group" id="g-ngaysinh">
+                <label for="ngaysinh">Ngày sinh <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">📅</span>
+                  <input type="date" id="ngaysinh" required />
+                </div>
+                <span class="err-msg">⚠ Vui lòng chọn ngày sinh.</span>
+              </div>
+              <div class="form-group" id="g-gioitinh">
+                <label>Giới tính <span class="req">*</span></label>
+                <div class="radio-group">
+                  <label class="radio-card">
+                    <input type="radio" name="gioitinh" value="nam" />
+                    <span>♂ Nam</span>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="gioitinh" value="nu" />
+                    <span>♀ Nữ</span>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="gioitinh" value="khac" />
+                    <span>⊕ Khác</span>
+                  </label>
+                </div>
+                <span class="err-msg">⚠ Vui lòng chọn giới tính.</span>
+              </div>
+              <div class="form-group full" id="g-email">
+                <label for="email">Email <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">📧</span>
+                  <input type="email" id="email" placeholder="your.email@example.com" required />
+                </div>
+                <span class="err-msg">⚠ Email không hợp lệ.</span>
+                <span class="ok-msg">✓ Email hợp lệ</span>
+              </div>
+              <div class="form-group" id="g-sdt">
+                <label for="sdt">Số điện thoại <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">📱</span>
+                  <input type="tel" id="sdt" placeholder="0901 234 567" required />
+                </div>
+                <span class="err-msg">⚠ Số điện thoại không hợp lệ (10 số).</span>
+                <span class="ok-msg">✓ Hợp lệ</span>
+              </div>
+              <div class="form-group" id="g-thanhpho">
+                <label for="thanhpho">Tỉnh / Thành phố <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">📍</span>
+                  <select id="thanhpho" required>
+                    <option value="">-- Chọn tỉnh/thành --</option>
+                    <option>Hà Nội</option>
+                    <option>TP. Hồ Chí Minh</option>
+                    <option>Đà Nẵng</option>
+                    <option>Hải Phòng</option>
+                    <option>Cần Thơ</option>
+                    <option>Bình Dương</option>
+                    <option>Đồng Nai</option>
+                    <option>Khác</option>
+                  </select>
+                </div>
+                <span class="err-msg">⚠ Vui lòng chọn tỉnh/thành phố.</span>
+              </div>
+            </div>
+          </div>
+          <hr class="divider" />
+          <div class="form-section">
+            <div class="section-title">Thông tin đăng ký</div>
+            <div class="form-grid">
+              <div class="form-group" id="g-khoahoc">
+                <label for="khoahoc">Khóa học <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">📚</span>
+                  <select id="khoahoc" required>
+                    <option value="">-- Chọn khóa học --</option>
+                    <option value="web">Web Development (HTML/CSS/JS)</option>
+                    <option value="react">React &amp; Node.js</option>
+                    <option value="python">Python &amp; Data Analysis</option>
+                    <option value="mobile">Mobile App (Flutter)</option>
+                    <option value="ai">AI/ML Fundamentals</option>
+                  </select>
+                </div>
+                <span class="err-msg">⚠ Vui lòng chọn khóa học.</span>
+              </div>
+              <div class="form-group" id="g-hinhthuc">
+                <label for="hinhthuc">Hình thức học <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">🖥</span>
+                  <select id="hinhthuc" required>
+                    <option value="">-- Chọn hình thức --</option>
+                    <option value="online">🌐 Online (Zoom/Google Meet)</option>
+                    <option value="offline">🏢 Offline (Tại trung tâm)</option>
+                    <option value="hybrid">🔄 Hybrid</option>
+                  </select>
+                </div>
+                <span class="err-msg">⚠ Vui lòng chọn hình thức học.</span>
+              </div>
+              <div class="form-group" id="g-trinhdo">
+                <label>Trình độ hiện tại <span class="req">*</span></label>
+                <div class="radio-group">
+                  <label class="radio-card">
+                    <input type="radio" name="trinhdo" value="beginner" />
+                    <span>🌱 Mới bắt đầu</span>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="trinhdo" value="intermediate" />
+                    <span>⚡ Đã biết cơ bản</span>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="trinhdo" value="advanced" />
+                    <span>🚀 Có kinh nghiệm</span>
+                  </label>
+                </div>
+                <span class="err-msg">⚠ Vui lòng chọn trình độ.</span>
+              </div>
+              <div class="form-group" id="g-muctiêu">
+                <label>Mục tiêu học <span class="req">*</span></label>
+                <div class="checkbox-group">
+                  <label class="cb-item"><input type="checkbox" name="muctieu" value="job" /><span>💼 Tìm việc làm</span></label>
+                  <label class="cb-item"><input type="checkbox" name="muctieu" value="freelance" /><span>🌍 Freelance</span></label>
+                  <label class="cb-item"><input type="checkbox" name="muctieu" value="startup" /><span>🚀 Startup</span></label>
+                  <label class="cb-item"><input type="checkbox" name="muctieu" value="hobby" /><span>🎯 Sở thích</span></label>
+                </div>
+                <span class="err-msg" id="muctieuErr">⚠ Chọn ít nhất 1 mục tiêu.</span>
+              </div>
+              <div class="form-group full" id="g-gioiThieu">
+                <label for="gioiThieu">Giới thiệu bản thân</label>
+                <textarea id="gioiThieu" rows="3" placeholder="Chia sẻ ngắn về bản thân, kinh nghiệm lập trình và lý do đăng ký khóa học này..."></textarea>
+              </div>
+            </div>
+          </div>
+          <hr class="divider" />
+          <div class="form-section">
+            <div class="section-title">Tạo tài khoản học tập</div>
+            <div class="form-grid">
+              <div class="form-group" id="g-username">
+                <label for="username">Tên đăng nhập <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">🔖</span>
+                  <input type="text" id="username" placeholder="vd: nguyen.an" required />
+                </div>
+                <span class="err-msg">⚠ Tên đăng nhập tối thiểu 4 ký tự, không dấu.</span>
+                <span class="ok-msg">✓ Tên đăng nhập hợp lệ</span>
+              </div>
+              <div class="form-group" id="g-pass">
+                <label for="pass">Mật khẩu <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">🔑</span>
+                  <input type="password" id="pass" placeholder="Tối thiểu 8 ký tự" required />
+                </div>
+                <div class="strength-wrap">
+                  <div class="strength-bars">
+                    <span id="sb1"></span><span id="sb2"></span>
+                    <span id="sb3"></span><span id="sb4"></span>
+                  </div>
+                  <div class="strength-text" id="strengthTxt"></div>
+                </div>
+                <span class="err-msg">⚠ Mật khẩu tối thiểu 8 ký tự.</span>
+              </div>
+              <div class="form-group full" id="g-confirm">
+                <label for="confirm">Xác nhận mật khẩu <span class="req">*</span></label>
+                <div class="input-wrap has-icon">
+                  <span class="icon">🔒</span>
+                  <input type="password" id="confirm" placeholder="Nhập lại mật khẩu" required />
+                </div>
+                <span class="err-msg">⚠ Mật khẩu xác nhận không khớp.</span>
+                <span class="ok-msg">✓ Mật khẩu khớp</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:0.5rem">
+            <label class="cb-item" id="g-terms">
+              <input type="checkbox" id="termsCheck" />
+              <span style="font-size:0.85rem">Tôi đã đọc và đồng ý với <a href="#" style="color:var(--primary)">Điều khoản dịch vụ</a> và <a href="#" style="color:var(--primary)">Chính sách bảo mật</a> <span class="req">*</span></span>
+            </label>
+            <label class="cb-item">
+              <input type="checkbox" id="newsCheck" />
+              <span style="font-size:0.85rem;color:var(--gray-500)">Tôi muốn nhận thông báo về khóa học mới và ưu đãi qua email</span>
+            </label>
+          </div>
+        </div>
+        <div class="submit-area">
+          <div class="submit-note">
+            🔒 Thông tin của bạn được bảo mật theo tiêu chuẩn SSL
+          </div>
+          <div class="btn-group-submit">
+            <button type="button" class="btn btn-outline" onclick="resetForm()">↺ Nhập lại</button>
+            <button type="submit" class="btn btn-primary">
+              Gửi đăng ký ✓
+            </button>
+          </div>
+        </div>
+      </form>
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">🎉</div>
+        <h2>Đăng ký thành công!</h2>
+        <p>Cảm ơn bạn đã đăng ký. Chúng tôi sẽ gửi xác nhận qua email trong vòng 24 giờ.</p>
+        <div class="summary-table" id="summaryTable"></div>
+        <button class="btn btn-primary" onclick="location.reload()">
+          ← Đăng ký lại
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('avatarInput').addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const preview = document.getElementById('avatarPreview');
+        preview.innerHTML = `<img src="${e.target.result}" alt="Avatar" />`;
+      };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById('pass').addEventListener('input', function () {
+      const v = this.value;
+      let score = 0;
+      if (v.length >= 8) score++;
+      if (/[A-Z]/.test(v)) score++;
+      if (/[0-9]/.test(v)) score++;
+      if (/[^A-Za-z0-9]/.test(v)) score++;
+      const colors = ['', '#ef4444', '#f59e0b', '#3b82f6', '#16a34a'];
+      const labels = ['', 'Yếu', 'Trung bình', 'Khá mạnh', 'Rất mạnh'];
+      const bars = ['sb1','sb2','sb3','sb4'];
+      bars.forEach((id, i) => {
+        document.getElementById(id).style.background = i < score ? colors[score] : 'var(--gray-200)';
+      });
+      const txt = document.getElementById('strengthTxt');
+      txt.textContent = v.length ? `Độ mạnh: ${labels[score]}` : '';
+      txt.style.color = colors[score] || 'var(--gray-400)';
+    });
+    function setOk(gid) {
+      const g = document.getElementById(gid);
+      g.classList.remove('error');
+      g.classList.add('ok');
+    }
+    function setError(gid) {
+      const g = document.getElementById(gid);
+      g.classList.remove('ok');
+      g.classList.add('error');
+    }
+    function clearState(gid) {
+      const g = document.getElementById(gid);
+      g.classList.remove('ok', 'error');
+    }
+    document.getElementById('ho').addEventListener('blur', function () {
+      this.value.trim() ? setOk('g-ho') : setError('g-ho');
+    });
+    document.getElementById('ten').addEventListener('blur', function () {
+      this.value.trim() ? setOk('g-ten') : setError('g-ten');
+    });
+    document.getElementById('email').addEventListener('blur', function () {
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value) ? setOk('g-email') : setError('g-email');
+    });
+    document.getElementById('sdt').addEventListener('blur', function () {
+      /^(0[0-9]{9})$/.test(this.value.replace(/\s/g,'')) ? setOk('g-sdt') : setError('g-sdt');
+    });
+    document.getElementById('username').addEventListener('blur', function () {
+      /^[a-zA-Z0-9._]{4,}$/.test(this.value) ? setOk('g-username') : setError('g-username');
+    });
+    document.getElementById('confirm').addEventListener('input', function () {
+      const pass = document.getElementById('pass').value;
+      if (!this.value) return clearState('g-confirm');
+      this.value === pass ? setOk('g-confirm') : setError('g-confirm');
+    });
+    document.getElementById('mainForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      let valid = true;
+      if (!document.getElementById('ho').value.trim()) { setError('g-ho'); valid = false; } else setOk('g-ho');
+      if (!document.getElementById('ten').value.trim()) { setError('g-ten'); valid = false; } else setOk('g-ten');
+      if (!document.getElementById('ngaysinh').value) { setError('g-ngaysinh'); valid = false; } else clearState('g-ngaysinh');
+      if (!document.querySelector('input[name="gioitinh"]:checked')) { setError('g-gioitinh'); valid = false; } else clearState('g-gioitinh');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('email').value)) { setError('g-email'); valid = false; } else setOk('g-email');
+      const sdt = document.getElementById('sdt').value.replace(/\s/g,'');
+      if (!/^0[0-9]{9}$/.test(sdt)) { setError('g-sdt'); valid = false; } else setOk('g-sdt');
+      if (!document.getElementById('thanhpho').value) { setError('g-thanhpho'); valid = false; } else clearState('g-thanhpho');
+      if (!document.getElementById('khoahoc').value) { setError('g-khoahoc'); valid = false; } else clearState('g-khoahoc');
+      if (!document.getElementById('hinhthuc').value) { setError('g-hinhthuc'); valid = false; } else clearState('g-hinhthuc');
+      if (!document.querySelector('input[name="trinhdo"]:checked')) { setError('g-trinhdo'); valid = false; } else clearState('g-trinhdo');
+      const muctieuErr = document.getElementById('muctieuErr');
+      const muctieuChecked = document.querySelectorAll('input[name="muctieu"]:checked');
+      if (muctieuChecked.length === 0) {
+        muctieuErr.style.display = 'flex'; valid = false;
+      } else {
+        muctieuErr.style.display = 'none';
+      }
+      if (!/^[a-zA-Z0-9._]{4,}$/.test(document.getElementById('username').value)) { setError('g-username'); valid = false; } else setOk('g-username');
+      if (document.getElementById('pass').value.length < 8) { setError('g-pass'); valid = false; } else clearState('g-pass');
+      if (document.getElementById('confirm').value !== document.getElementById('pass').value) { setError('g-confirm'); valid = false; } else setOk('g-confirm');
+      if (!document.getElementById('termsCheck').checked) {
+        alert('⚠️ Vui lòng đồng ý với Điều khoản dịch vụ để tiếp tục.');
+        valid = false;
+      }
+      if (!valid) {
+        const firstError = document.querySelector('.form-group.error');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      const khoa = document.getElementById('khoahoc');
+      const khoaText = khoa.options[khoa.selectedIndex].text;
+      const htText = document.getElementById('hinhthuc').options[document.getElementById('hinhthuc').selectedIndex].text;
+      const summary = [
+        { key: 'Họ tên', val: `${document.getElementById('ho').value} ${document.getElementById('ten').value}` },
+        { key: 'Email', val: document.getElementById('email').value },
+        { key: 'SĐT', val: document.getElementById('sdt').value },
+        { key: 'Khóa học', val: khoaText },
+        { key: 'Hình thức', val: htText },
+        { key: 'Tên đăng nhập', val: document.getElementById('username').value },
+      ];
+      document.getElementById('summaryTable').innerHTML = summary.map(r => `
+        <div class="summary-row">
+          <div class="summary-key">${r.key}</div>
+          <div class="summary-val">${r.val}</div>
+        </div>
+      `).join('');
+      document.getElementById('mainForm').style.display = 'none';
+      document.getElementById('successScreen').classList.add('show');
+    });
+    function resetForm() {
+      if (!confirm('Bạn có chắc muốn nhập lại toàn bộ thông tin?')) return;
+      document.getElementById('mainForm').reset();
+      document.querySelectorAll('.form-group.error, .form-group.ok').forEach(g => g.classList.remove('error', 'ok'));
+      document.getElementById('avatarPreview').innerHTML = '🧑';
+      document.getElementById('strengthTxt').textContent = '';
+      ['sb1','sb2','sb3','sb4'].forEach(id => document.getElementById(id).style.background = '');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý Công việc — BTTH03 Bài 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #16213e;
+      --border: rgba(255,255,255,0.08);
+      --primary: #a78bfa;
+      --primary-d: #7c3aed;
+      --success: #34d399;
+      --danger: #f87171;
+      --warning: #fbbf24;
+      --info: #60a5fa;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --font: 'Nunito', sans-serif;
+      --radius: 16px;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .app-header {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem 1rem;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .app-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .app-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-d));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .app-title h1 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .app-title p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+    .btn-add-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-d));
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 4px 18px rgba(167,139,250,0.3);
+    }
+    .btn-add-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(167,139,250,0.45);
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .stat-chip {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.875rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chip-icon { font-size: 1.2rem; }
+    .chip-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .chip-value { font-size: 1.4rem; font-weight: 800; line-height: 1; }
+    .chip-value.purple { color: var(--primary); }
+    .chip-value.green { color: var(--success); }
+    .chip-value.orange { color: var(--warning); }
+    .chip-value.red { color: var(--danger); }
+    .main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .search-box {
+      flex: 1;
+      position: relative;
+      min-width: 200px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 0.7rem 1rem 0.7rem 2.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-family: var(--font);
+      font-size: 0.88rem;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .search-box input::placeholder { color: rgba(148,163,184,0.5); }
+    .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(167,139,250,0.15); }
+    .search-icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tab {
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab:hover { border-color: var(--primary); color: var(--primary); }
+    .tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+    .tasks-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+    }
+    .empty-state {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+    .empty-state .empty-icon { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+    .empty-state p { font-size: 1rem; }
+    .task-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .task-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+    }
+    .task-card.priority-cao::before { background: var(--danger); }
+    .task-card.priority-trung::before { background: var(--warning); }
+    .task-card.priority-thap::before { background: var(--success); }
+    .task-card:hover {
+      border-color: rgba(167,139,250,0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+    }
+    .task-card.completed {
+      opacity: 0.6;
+    }
+    .task-card.completed .task-title { text-decoration: line-through; color: var(--muted); }
+    .task-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .task-check {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      border: 2px solid rgba(148,163,184,0.3);
+      cursor: pointer;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+      transition: all 0.2s;
+    }
+    .task-check:hover { border-color: var(--primary); }
+    .task-check.checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .task-check.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+    .task-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      line-height: 1.4;
+      flex: 1;
+    }
+    .task-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      padding-left: 0.1rem;
+    }
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .badge-prio-cao { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.25); }
+    .badge-prio-trung { background: rgba(251,191,36,0.15); color: var(--warning); border: 1px solid rgba(251,191,36,0.25); }
+    .badge-prio-thap { background: rgba(52,211,153,0.15); color: var(--success); border: 1px solid rgba(52,211,153,0.25); }
+    .badge-done { background: rgba(52,211,153,0.12); color: var(--success); border: 1px solid rgba(52,211,153,0.2); }
+    .badge-pending { background: rgba(148,163,184,0.1); color: var(--muted); border: 1px solid var(--border); }
+    .due-date {
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+    }
+    .due-date.overdue { color: var(--danger); }
+    .task-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+    .task-actions { display: flex; gap: 6px; }
+    .btn-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      color: var(--muted);
+    }
+    .btn-icon:hover { border-color: var(--primary); color: var(--primary); background: rgba(167,139,250,0.1); }
+    .btn-icon.delete:hover { border-color: var(--danger); color: var(--danger); background: rgba(248,113,113,0.1); }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s;
+    }
+    .overlay.active { opacity: 1; visibility: visible; }
+    .modal {
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 32px 60px rgba(0,0,0,0.5);
+      transform: scale(0.94) translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .overlay.active .modal { transform: scale(1) translateY(0); }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 1.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-title { font-size: 1.1rem; font-weight: 800; }
+    .modal-close {
+      width: 34px; height: 34px;
+      background: rgba(255,255,255,0.06);
+      border: none;
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: rgba(248,113,113,0.15); color: var(--danger); }
+    .modal-body { padding: 1.5rem 1.75rem 2rem; }
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
+      background: rgba(255,255,255,0.07);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(148,163,184,0.4); }
+    .form-group select option { background: #1a1a2e; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group .error {
+      font-size: 0.75rem;
+      color: var(--danger);
+      margin-top: 4px;
+      display: none;
+    }
+    .form-group.has-error input,
+    .form-group.has-error textarea { border-color: var(--danger); }
+    .form-group.has-error .error { display: block; }
+    .modal-footer-btns {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0.65rem 1.3rem;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-d); transform: translateY(-1px); }
+    .btn-ghost { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); }
+    .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+    .confirm-box {
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      transform: scale(0.92);
+      transition: transform 0.25s;
+    }
+    .confirm-overlay.active .confirm-box { transform: scale(1); }
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
+    }
+    .confirm-overlay.active { opacity: 1; visibility: visible; }
+    .confirm-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+    .confirm-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .confirm-msg { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
+    .confirm-btns { display: flex; gap: 0.75rem; justify-content: center; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.875rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideUp 0.3s ease;
+      min-width: 260px;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 768px) {
+      .app-header { padding: 1rem; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .main { padding: 1rem; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-header">
+    <div class="header-top">
+      <div class="app-title">
+        <div class="app-icon">✅</div>
+        <div>
+          <h1>Task Manager</h1>
+          <p>Quản lý công việc cá nhân — BTTH03 Bài 2</p>
+        </div>
+      </div>
+      <button class="btn-add-main" id="btnAdd">
+        ＋ Thêm công việc
+      </button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-chip">
+        <span class="chip-icon">📋</span>
+        <div>
+          <div class="chip-label">Tổng</div>
+          <div class="chip-value purple" id="statTotal">0</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <span class="chip-icon">✅</span>
+        <div>
+          <div class="chip-label">Hoàn thành</div>
+          <div class="chip-value green" id="statDone">0</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <span class="chip-icon">⏳</span>
+        <div>
+          <div class="chip-label">Chưa xong</div>
+          <div class="chip-value orange" id="statPending">0</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <span class="chip-icon">🔥</span>
+        <div>
+          <div class="chip-label">Quá hạn</div>
+          <div class="chip-value red" id="statOverdue">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Tìm kiếm công việc..." />
+      </div>
+      <div class="tabs" id="tabsGroup">
+        <button class="tab active" data-tab="all">Tất cả</button>
+        <button class="tab" data-tab="pending">⏳ Chưa xong</button>
+        <button class="tab" data-tab="done">✅ Đã xong</button>
+        <button class="tab" data-tab="cao">🔴 Cao</button>
+        <button class="tab" data-tab="trung">🟡 Trung bình</button>
+        <button class="tab" data-tab="thap">🟢 Thấp</button>
+      </div>
+    </div>
+    <div class="tasks-container" id="tasksContainer"></div>
+  </div>
+  <div class="overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">➕ Thêm công việc mới</div>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" id="fTitleGroup">
+          <label>Tiêu đề *</label>
+          <input type="text" id="fTitle" placeholder="VD: Hoàn thành báo cáo đồ án..." />
+          <span class="error">Tiêu đề không được để trống.</span>
+        </div>
+        <div class="form-group">
+          <label>Mô tả</label>
+          <textarea id="fDesc" rows="3" placeholder="Mô tả chi tiết công việc (tùy chọn)..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group" id="fDueGroup">
+            <label>Hạn hoàn thành *</label>
+            <input type="date" id="fDue" />
+            <span class="error">Vui lòng chọn hạn hoàn thành.</span>
+          </div>
+          <div class="form-group">
+            <label>Mức ưu tiên</label>
+            <select id="fPriority">
+              <option value="trung">🟡 Trung bình</option>
+              <option value="cao">🔴 Cao</option>
+              <option value="thap">🟢 Thấp</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer-btns">
+          <button class="btn btn-ghost" id="btnCancel">Hủy</button>
+          <button class="btn btn-primary" id="btnSave">💾 Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <span class="confirm-icon">🗑️</span>
+      <div class="confirm-title">Xóa công việc?</div>
+      <div class="confirm-msg" id="confirmMsg">Thao tác này không thể hoàn tác.</div>
+      <div class="confirm-btns">
+        <button class="btn btn-ghost" id="confirmNo">Hủy</button>
+        <button class="btn btn-danger" id="confirmYes">🗑️ Xóa</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    const KEY = 'tasks_btth03_k66';
+    let tasks = [];
+    let editId = null;
+    let deleteId = null;
+    let activeTab = 'all';
+    const prioLabel = { cao: '🔴 Cao', trung: '🟡 Trung bình', thap: '🟢 Thấp' };
+    const prioClass = { cao: 'badge-prio-cao', trung: 'badge-prio-trung', thap: 'badge-prio-thap' };
+    const seed = [
+      { id: 1, title: 'Hoàn thành bài BTTH03 Bài 1', desc: 'Làm trang quản lý sinh viên với CRUD đầy đủ.', due: '2026-06-05', priority: 'cao', done: true },
+      { id: 2, title: 'Ôn tập CSS Flexbox & Grid', desc: 'Xem lại session 1 và làm bài tập portfolio.', due: '2026-06-10', priority: 'trung', done: false },
+      { id: 3, title: 'Đọc tài liệu DOM MDN', desc: '', due: '2026-06-08', priority: 'thap', done: false },
+      { id: 4, title: 'Nộp bài tập lớn môn CSE391', desc: 'Upload lên GitHub và submit link trên LMS.', due: '2026-05-30', priority: 'cao', done: false },
+    ];
+    function load() {
+      const raw = localStorage.getItem(KEY);
+      tasks = raw ? JSON.parse(raw) : [...seed];
+      if (!raw) save();
+    }
+    function save() { localStorage.setItem(KEY, JSON.stringify(tasks)); }
+    function nextId() { return tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1; }
+    function toast(msg, icon = '✅') {
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.innerHTML = `<span>${icon}</span> ${msg}`;
+      document.getElementById('toastContainer').appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+    function updateStats() {
+      const today = new Date().toISOString().slice(0, 10);
+      const done = tasks.filter(t => t.done).length;
+      const pending = tasks.filter(t => !t.done).length;
+      const overdue = tasks.filter(t => !t.done && t.due < today).length;
+      document.getElementById('statTotal').textContent = tasks.length;
+      document.getElementById('statDone').textContent = done;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statOverdue').textContent = overdue;
+    }
+    function getFiltered() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      let list = tasks;
+      if (activeTab === 'pending') list = list.filter(t => !t.done);
+      else if (activeTab === 'done') list = list.filter(t => t.done);
+      else if (['cao', 'trung', 'thap'].includes(activeTab)) list = list.filter(t => t.priority === activeTab);
+      if (q) list = list.filter(t => t.title.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q));
+      return list;
+    }
+    function render() {
+      const container = document.getElementById('tasksContainer');
+      const list = getFiltered();
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <span class="empty-icon">🗂️</span>
+            <p>Không có công việc nào. Nhấn <strong>"Thêm công việc"</strong> để bắt đầu!</p>
+          </div>`;
+        return;
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      container.innerHTML = list.map(t => {
+        const overdue = !t.done && t.due < today;
+        const dueFmt = new Date(t.due).toLocaleDateString('vi-VN');
+        return `
+          <div class="task-card priority-${t.priority} ${t.done ? 'completed' : ''}" id="card-${t.id}">
+            <div class="task-header">
+              <div class="task-check ${t.done ? 'checked' : ''}" onclick="toggleDone(${t.id})" title="Đánh dấu hoàn thành"></div>
+              <div class="task-title">${t.title}</div>
+            </div>
+            ${t.desc ? `<div class="task-desc">${t.desc}</div>` : ''}
+            <div class="task-meta">
+              <span class="badge ${prioClass[t.priority]}">${prioLabel[t.priority]}</span>
+              <span class="badge ${t.done ? 'badge-done' : 'badge-pending'}">${t.done ? '✅ Hoàn thành' : '⏳ Đang làm'}</span>
+              <span class="due-date ${overdue ? 'overdue' : ''}">
+                📅 ${dueFmt}${overdue ? ' ⚠️' : ''}
+              </span>
+            </div>
+            <div class="task-footer">
+              <span style="font-size:0.75rem; color:var(--muted)">ID #${t.id}</span>
+              <div class="task-actions">
+                <button class="btn-icon" onclick="openEdit(${t.id})" title="Sửa">✏️</button>
+                <button class="btn-icon delete" onclick="openDelete(${t.id})" title="Xóa">🗑️</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+    function toggleDone(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+      task.done = !task.done;
+      save();
+      updateStats();
+      render();
+      toast(task.done ? `"${task.title}" đã hoàn thành! 🎉` : `Đã bỏ đánh dấu hoàn thành.`, task.done ? '✅' : '↩️');
+    }
+    function openModal() { document.getElementById('modalOverlay').classList.add('active'); }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      resetForm();
+      editId = null;
+    }
+    function resetForm() {
+      document.getElementById('fTitle').value = '';
+      document.getElementById('fDesc').value = '';
+      document.getElementById('fDue').value = '';
+      document.getElementById('fPriority').value = 'trung';
+      document.querySelectorAll('.form-group.has-error').forEach(g => g.classList.remove('has-error'));
+    }
+    document.getElementById('btnAdd').addEventListener('click', () => {
+      editId = null;
+      document.getElementById('modalTitle').textContent = '➕ Thêm công việc mới';
+      document.getElementById('btnSave').textContent = '💾 Thêm';
+      openModal();
+    });
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('btnCancel').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    });
+    function openEdit(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+      editId = id;
+      document.getElementById('modalTitle').textContent = '✏️ Chỉnh sửa công việc';
+      document.getElementById('fTitle').value = task.title;
+      document.getElementById('fDesc').value = task.desc;
+      document.getElementById('fDue').value = task.due;
+      document.getElementById('fPriority').value = task.priority;
+      document.getElementById('btnSave').textContent = '💾 Cập nhật';
+      openModal();
+    }
+    function validateTaskForm() {
+      let ok = true;
+      const title = document.getElementById('fTitle').value.trim();
+      const due = document.getElementById('fDue').value;
+      const tg = document.getElementById('fTitleGroup');
+      tg.classList.toggle('has-error', title.length === 0);
+      if (!title) ok = false;
+      const dg = document.getElementById('fDueGroup');
+      dg.classList.toggle('has-error', due === '');
+      if (!due) ok = false;
+      return ok;
+    }
+    document.getElementById('btnSave').addEventListener('click', () => {
+      if (!validateTaskForm()) return;
+      const data = {
+        title: document.getElementById('fTitle').value.trim(),
+        desc: document.getElementById('fDesc').value.trim(),
+        due: document.getElementById('fDue').value,
+        priority: document.getElementById('fPriority').value,
+      };
+      if (editId) {
+        const idx = tasks.findIndex(t => t.id === editId);
+        tasks[idx] = { ...tasks[idx], ...data };
+        toast(`Đã cập nhật "${data.title}"`, '✏️');
+      } else {
+        tasks.push({ id: nextId(), ...data, done: false });
+        toast(`Đã thêm "${data.title}"`, '➕');
+      }
+      save();
+      updateStats();
+      render();
+      closeModal();
+    });
+    function openDelete(id) {
+      deleteId = id;
+      const task = tasks.find(t => t.id === id);
+      document.getElementById('confirmMsg').innerHTML = `Xóa công việc: <strong>"${task?.title}"</strong>?<br><span style="color:var(--danger);font-size:0.8rem">Không thể hoàn tác.</span>`;
+      document.getElementById('confirmOverlay').classList.add('active');
+    }
+    document.getElementById('confirmNo').addEventListener('click', () => {
+      document.getElementById('confirmOverlay').classList.remove('active');
+      deleteId = null;
+    });
+    document.getElementById('confirmYes').addEventListener('click', () => {
+      const task = tasks.find(t => t.id === deleteId);
+      tasks = tasks.filter(t => t.id !== deleteId);
+      save();
+      updateStats();
+      render();
+      document.getElementById('confirmOverlay').classList.remove('active');
+      toast(`Đã xóa "${task?.title}"`, '🗑️');
+      deleteId = null;
+    });
+    document.getElementById('tabsGroup').addEventListener('click', e => {
+      const tab = e.target.closest('.tab');
+      if (!tab) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeTab = tab.dataset.tab;
+      render();
+    });
+    document.getElementById('searchInput').addEventListener('input', render);
+    load();
+    updateStats();
+    render();
+  </script>
+</body>
+</html>

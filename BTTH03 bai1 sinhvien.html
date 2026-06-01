@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý Sinh viên — BTTH03 Bài 1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-light: rgba(99,102,241,0.1);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --font: 'Plus Jakarta Sans', sans-serif;
+      --radius: 14px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .topbar {
+      background: var(--primary);
+      color: white;
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(99,102,241,0.4);
+    }
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: -0.3px;
+    }
+    .topbar-brand span { font-size: 1.3rem; }
+    .topbar-sub { font-size: 0.8rem; opacity: 0.75; }
+    .main { max-width: 1280px; margin: 0 auto; padding: 2rem; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .stat-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .stat-icon.blue { background: rgba(99,102,241,0.12); }
+    .stat-icon.green { background: rgba(16,185,129,0.12); }
+    .stat-icon.orange { background: rgba(245,158,11,0.12); }
+    .stat-icon.red { background: rgba(239,68,68,0.12); }
+    .stat-info .label { font-size: 0.75rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-info .value { font-size: 1.5rem; font-weight: 800; color: var(--text); line-height: 1.2; }
+    .toolbar {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap input {
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.88rem;
+      width: 260px;
+      outline: none;
+      transition: all 0.2s;
+      background: var(--bg);
+    }
+    .search-wrap input:focus { border-color: var(--primary); background: white; }
+    .search-icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,0.3); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #059669; transform: translateY(-1px); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .btn-sm { padding: 0.35rem 0.85rem; font-size: 0.78rem; border-radius: 8px; }
+    .table-wrap {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    thead { background: var(--bg); }
+    thead th {
+      padding: 0.875rem 1rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f8fafc; }
+    td {
+      padding: 0.9rem 1rem;
+      vertical-align: middle;
+    }
+    .td-id { font-family: monospace; font-size: 0.8rem; color: var(--muted); }
+    .td-name { font-weight: 600; color: var(--text); }
+    .td-name .td-email { font-size: 0.78rem; color: var(--muted); font-weight: 400; margin-top: 2px; }
+    .td-class {
+      display: inline-flex;
+      align-items: center;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 50px;
+    }
+    .td-score {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .score-a { color: var(--success); }
+    .score-b { color: var(--primary); }
+    .score-c { color: var(--warning); }
+    .score-d { color: var(--danger); }
+    .td-actions { display: flex; gap: 6px; }
+    .empty-row td {
+      text-align: center;
+      padding: 3.5rem 1rem;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+    .table-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+      background: var(--card);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s;
+    }
+    .overlay.active { opacity: 1; visibility: visible; }
+    .modal {
+      background: var(--card);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95) translateY(16px);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .overlay.active .modal { transform: scale(1) translateY(0); }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 1.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--card);
+      z-index: 1;
+    }
+    .modal-title { font-size: 1.1rem; font-weight: 700; }
+    .modal-close {
+      width: 34px; height: 34px;
+      background: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: #fce7f3; color: var(--danger); }
+    .modal-body { padding: 1.5rem 1.75rem 2rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-group input,
+    .form-group select {
+      padding: 0.72rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+      background: var(--bg);
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    }
+    .form-group .error {
+      font-size: 0.75rem;
+      color: var(--danger);
+      display: none;
+    }
+    .form-group.has-error input,
+    .form-group.has-error select { border-color: var(--danger); }
+    .form-group.has-error .error { display: block; }
+    .modal-footer {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      margin-top: 1.25rem;
+    }
+    .toast-container {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .toast {
+      background: var(--text);
+      color: white;
+      padding: 0.875rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 280px;
+      animation: slideIn 0.3s ease;
+    }
+    .toast.success { background: var(--success); }
+    .toast.danger { background: var(--danger); }
+    .toast.warning { background: var(--warning); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
+    }
+    .confirm-overlay.active { opacity: 1; visibility: visible; }
+    .confirm-box {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+      transform: scale(0.92);
+      transition: transform 0.25s;
+    }
+    .confirm-overlay.active .confirm-box { transform: scale(1); }
+    .confirm-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+    .confirm-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .confirm-msg { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+    .confirm-btns { display: flex; gap: 0.75rem; justify-content: center; }
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .main { padding: 1rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      table { font-size: 0.8rem; }
+      .search-wrap input { width: 200px; }
+      td, th { padding: 0.75rem 0.6rem; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-brand">
+      <span>🎓</span>
+      Quản lý Sinh viên
+    </div>
+    <div class="topbar-sub">CSE391 — K66 | BTTH03 Bài 1</div>
+  </div>
+  <div class="main">
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-icon blue">👥</div>
+        <div class="stat-info">
+          <div class="label">Tổng sinh viên</div>
+          <div class="value" id="statTotal">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">📊</div>
+        <div class="stat-info">
+          <div class="label">Điểm TB lớp</div>
+          <div class="value" id="statAvg">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">🏆</div>
+        <div class="stat-info">
+          <div class="label">Điểm cao nhất</div>
+          <div class="value" id="statMax">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">⚠️</div>
+        <div class="stat-info">
+          <div class="label">Dưới 5.0</div>
+          <div class="value" id="statFail">0</div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Tìm theo tên, mã SV, email..." />
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btnAdd">
+        ➕ Thêm sinh viên
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Mã SV</th>
+            <th>Họ và tên</th>
+            <th>Ngày sinh</th>
+            <th>Lớp</th>
+            <th>Điểm TB</th>
+            <th style="text-align:right">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="table-footer">
+        <span id="footerInfo">Hiển thị 0 sinh viên</span>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Thêm sinh viên mới</div>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="fId">Mã sinh viên *</label>
+            <input type="text" id="fId" placeholder="VD: SV001" />
+            <span class="error" id="fIdErr">Mã sinh viên không được để trống.</span>
+          </div>
+          <div class="form-group">
+            <label for="fDob">Ngày sinh *</label>
+            <input type="date" id="fDob" />
+            <span class="error" id="fDobErr">Vui lòng chọn ngày sinh.</span>
+          </div>
+          <div class="form-group full">
+            <label for="fName">Họ và tên *</label>
+            <input type="text" id="fName" placeholder="Nguyễn Văn A" />
+            <span class="error" id="fNameErr">Họ tên không được để trống.</span>
+          </div>
+          <div class="form-group">
+            <label for="fClass">Lớp học *</label>
+            <select id="fClass">
+              <option value="">-- Chọn lớp --</option>
+              <option>K66A</option>
+              <option>K66B</option>
+              <option>K66C</option>
+              <option>K66D</option>
+              <option>K67A</option>
+              <option>K67B</option>
+            </select>
+            <span class="error" id="fClassErr">Vui lòng chọn lớp.</span>
+          </div>
+          <div class="form-group">
+            <label for="fScore">Điểm trung bình *</label>
+            <input type="number" id="fScore" min="0" max="10" step="0.1" placeholder="0.0 — 10.0" />
+            <span class="error" id="fScoreErr">Điểm phải từ 0 đến 10.</span>
+          </div>
+          <div class="form-group full">
+            <label for="fEmail">Email *</label>
+            <input type="email" id="fEmail" placeholder="student@example.com" />
+            <span class="error" id="fEmailErr">Email không hợp lệ.</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" id="btnCancel">Hủy</button>
+          <button class="btn btn-success" id="btnSave">💾 Lưu sinh viên</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <span class="confirm-icon">🗑️</span>
+      <div class="confirm-title">Xác nhận xóa</div>
+      <div class="confirm-msg" id="confirmMsg">Bạn có chắc chắn muốn xóa sinh viên này?<br>Thao tác không thể hoàn tác.</div>
+      <div class="confirm-btns">
+        <button class="btn btn-ghost" id="confirmNo">Hủy</button>
+        <button class="btn btn-danger" id="confirmYes">🗑️ Xóa</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    const STORAGE_KEY = 'sv_btth03_k66';
+    let students = [];
+    let editingId = null;
+    let deleteTargetId = null;
+    const seed = [
+      { id: 'SV001', name: 'Nguyễn Văn An', dob: '2004-03-15', cls: 'K66A', score: 8.5, email: 'an.nv@email.com' },
+      { id: 'SV002', name: 'Trần Thị Bình', dob: '2004-07-22', cls: 'K66B', score: 7.2, email: 'binh.tt@email.com' },
+      { id: 'SV003', name: 'Lê Minh Châu', dob: '2003-11-05', cls: 'K66A', score: 9.1, email: 'chau.lm@email.com' },
+      { id: 'SV004', name: 'Phạm Hoàng Dũng', dob: '2004-01-30', cls: 'K66C', score: 4.8, email: 'dung.ph@email.com' },
+      { id: 'SV005', name: 'Vũ Thị Em', dob: '2004-09-18', cls: 'K66B', score: 6.3, email: 'em.vt@email.com' },
+    ];
+    function loadStudents() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      students = raw ? JSON.parse(raw) : [...seed];
+      if (!raw) saveStudents();
+    }
+    function saveStudents() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+    }
+    function showToast(msg, type = 'success') {
+      const icons = { success: '✅', danger: '❌', warning: '⚠️' };
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.innerHTML = `<span>${icons[type]}</span> ${msg}`;
+      document.getElementById('toastContainer').appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+    function updateStats() {
+      const n = students.length;
+      const avg = n ? (students.reduce((s, sv) => s + sv.score, 0) / n).toFixed(2) : '—';
+      const max = n ? Math.max(...students.map(sv => sv.score)) : '—';
+      const fail = students.filter(sv => sv.score < 5).length;
+      document.getElementById('statTotal').textContent = n;
+      document.getElementById('statAvg').textContent = avg;
+      document.getElementById('statMax').textContent = typeof max === 'number' ? max.toFixed(1) : '—';
+      document.getElementById('statFail').textContent = fail;
+    }
+    function getScoreClass(score) {
+      if (score >= 8) return 'score-a';
+      if (score >= 6.5) return 'score-b';
+      if (score >= 5) return 'score-c';
+      return 'score-d';
+    }
+    function renderStudents(list) {
+      const tbody = document.getElementById('tableBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr class="empty-row">
+            <td colspan="6"><span class="empty-icon">🎓</span>Chưa có sinh viên nào. Nhấn "Thêm sinh viên" để bắt đầu.</td>
+          </tr>`;
+        document.getElementById('footerInfo').textContent = 'Không có dữ liệu';
+        return;
+      }
+      tbody.innerHTML = list.map((sv, i) => `
+        <tr>
+          <td class="td-id">${sv.id}</td>
+          <td>
+            <div class="td-name">${sv.name}</div>
+            <div class="td-email">${sv.email}</div>
+          </td>
+          <td>${formatDate(sv.dob)}</td>
+          <td><span class="td-class">${sv.cls}</span></td>
+          <td><span class="td-score ${getScoreClass(sv.score)}">${sv.score.toFixed(1)}</span></td>
+          <td>
+            <div class="td-actions" style="justify-content:flex-end">
+              <button class="btn btn-ghost btn-sm" onclick="openEdit('${sv.id}')">✏️ Sửa</button>
+              <button class="btn btn-danger btn-sm" onclick="openDelete('${sv.id}', '${sv.name}')">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('footerInfo').textContent = `Hiển thị ${list.length} / ${students.length} sinh viên`;
+    }
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('vi-VN');
+    }
+    function getFilteredStudents() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      if (!q) return students;
+      return students.filter(sv =>
+        sv.name.toLowerCase().includes(q) ||
+        sv.id.toLowerCase().includes(q) ||
+        sv.email.toLowerCase().includes(q) ||
+        sv.cls.toLowerCase().includes(q)
+      );
+    }
+    document.getElementById('searchInput').addEventListener('input', () => {
+      renderStudents(getFilteredStudents());
+    });
+    function validateForm() {
+      let valid = true;
+      const fields = [
+        { id: 'fId', errId: 'fIdErr', check: v => v.trim().length > 0 },
+        { id: 'fName', errId: 'fNameErr', check: v => v.trim().length >= 2 },
+        { id: 'fDob', errId: 'fDobErr', check: v => v !== '' },
+        { id: 'fClass', errId: 'fClassErr', check: v => v !== '' },
+        { id: 'fScore', errId: 'fScoreErr', check: v => !isNaN(v) && +v >= 0 && +v <= 10 },
+        { id: 'fEmail', errId: 'fEmailErr', check: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      ];
+      fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        const group = el.closest('.form-group');
+        const ok = f.check(el.value);
+        group.classList.toggle('has-error', !ok);
+        if (!ok) valid = false;
+      });
+      return valid;
+    }
+    function resetForm() {
+      ['fId', 'fName', 'fDob', 'fClass', 'fScore', 'fEmail'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.querySelectorAll('.form-group.has-error').forEach(g => g.classList.remove('has-error'));
+    }
+    function openModal() {
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      resetForm();
+      editingId = null;
+    }
+    document.getElementById('btnAdd').addEventListener('click', () => {
+      editingId = null;
+      document.getElementById('modalTitle').textContent = '➕ Thêm sinh viên mới';
+      document.getElementById('fId').disabled = false;
+      document.getElementById('btnSave').textContent = '💾 Lưu sinh viên';
+      openModal();
+    });
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('btnCancel').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    });
+    function openEdit(id) {
+      const sv = students.find(s => s.id === id);
+      if (!sv) return;
+      editingId = id;
+      document.getElementById('modalTitle').textContent = '✏️ Chỉnh sửa sinh viên';
+      document.getElementById('fId').value = sv.id;
+      document.getElementById('fId').disabled = true;
+      document.getElementById('fName').value = sv.name;
+      document.getElementById('fDob').value = sv.dob;
+      document.getElementById('fClass').value = sv.cls;
+      document.getElementById('fScore').value = sv.score;
+      document.getElementById('fEmail').value = sv.email;
+      document.getElementById('btnSave').textContent = '💾 Cập nhật';
+      openModal();
+    }
+    document.getElementById('btnSave').addEventListener('click', () => {
+      if (!validateForm()) return;
+      const sv = {
+        id: document.getElementById('fId').value.trim().toUpperCase(),
+        name: document.getElementById('fName').value.trim(),
+        dob: document.getElementById('fDob').value,
+        cls: document.getElementById('fClass').value,
+        score: parseFloat(document.getElementById('fScore').value),
+        email: document.getElementById('fEmail').value.trim().toLowerCase(),
+      };
+      if (editingId) {
+        const idx = students.findIndex(s => s.id === editingId);
+        students[idx] = sv;
+        showToast(`Đã cập nhật sinh viên ${sv.name}`);
+      } else {
+        if (students.some(s => s.id === sv.id)) {
+          document.getElementById('fId').closest('.form-group').classList.add('has-error');
+          document.getElementById('fIdErr').textContent = `Mã ${sv.id} đã tồn tại.`;
+          return;
+        }
+        students.push(sv);
+        showToast(`Đã thêm sinh viên ${sv.name} ✓`);
+      }
+      saveStudents();
+      updateStats();
+      renderStudents(getFilteredStudents());
+      closeModal();
+    });
+    function openDelete(id, name) {
+      deleteTargetId = id;
+      document.getElementById('confirmMsg').innerHTML = `Bạn có chắc chắn muốn xóa sinh viên <strong>${name}</strong> (${id})?<br><span style="color:var(--danger);font-size:0.82rem">Thao tác không thể hoàn tác.</span>`;
+      document.getElementById('confirmOverlay').classList.add('active');
+    }
+    document.getElementById('confirmNo').addEventListener('click', () => {
+      document.getElementById('confirmOverlay').classList.remove('active');
+      deleteTargetId = null;
+    });
+    document.getElementById('confirmYes').addEventListener('click', () => {
+      const sv = students.find(s => s.id === deleteTargetId);
+      students = students.filter(s => s.id !== deleteTargetId);
+      saveStudents();
+      updateStats();
+      renderStudents(getFilteredStudents());
+      document.getElementById('confirmOverlay').classList.remove('active');
+      showToast(`Đã xóa sinh viên ${sv?.name}`, 'danger');
+      deleteTargetId = null;
+    });
+    loadStudents();
+    updateStats();
+    renderStudents(students);
+  </script>
+</body>
+</html>
